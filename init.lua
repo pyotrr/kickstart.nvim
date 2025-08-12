@@ -86,12 +86,13 @@ P.S. You can delete this when you're done too. It's your config now! :)
 
 -- Set <space> as the leader key
 -- See `:help mapleader`
+vim.cmd 'language en_US'
+
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
-
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
@@ -131,6 +132,8 @@ vim.o.smartcase = true
 -- Keep signcolumn on by default
 vim.o.signcolumn = 'yes'
 
+-- Relative line numbers
+vim.opt.relativenumber = true
 -- Decrease update time
 vim.o.updatetime = 250
 
@@ -173,6 +176,17 @@ vim.o.confirm = true
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
+vim.keymap.set('n', '<leader>pv', vim.cmd.Ex)
+
+vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv")
+vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv")
+
+vim.keymap.set('n', '<C-d>', '<C-d>zz')
+vim.keymap.set('n', '<C-u>', '<C-u>zz')
+
+vim.keymap.set('n', 'n', 'nzzzv')
+vim.keymap.set('n', 'N', 'Nzzzv')
+
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
@@ -185,10 +199,10 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
+vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
+vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
+vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
@@ -248,6 +262,58 @@ rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
+  -- 'guns/vim-sexp',
+  { 'eraserhd/parinfer-rust', build = 'cargo build --release' },
+  'hiphish/rainbow-delimiters.nvim',
+  -- add this to your lua/plugins.lua, lua/plugins/init.lua,  or the file you keep your other plugins:
+  {
+    'numToStr/Comment.nvim',
+    opts = {
+      -- add any options here
+    },
+  },
+
+  {
+    'NeogitOrg/neogit',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'sindrets/diffview.nvim',
+      'nvim-telescope/telescope.nvim',
+    },
+    config = true,
+  },
+
+  -- 'tpope/vim-sexp-mappings-for-regular-people',
+  {
+    'Olical/conjure',
+    ft = { 'clojure' },
+    init = function()
+      vim.g['conjure#mapping#enable_defaults'] = false
+
+      vim.g['conjure#mapping#log_vsplit'] = 'ls'
+      vim.g['conjure#mapping#log_toggle'] = 'lt'
+      vim.g['conjure#mapping#log_reset_soft'] = 'lr'
+      vim.g['conjure#mapping#log_reset_hard'] = 'lR'
+
+      vim.g['conjure#mapping#eval_current_form'] = 'ee'
+      vim.g['conjure#mapping#eval_root_form'] = 'er'
+      vim.g['conjure#mapping#eval_replace_form'] = 'e!'
+      vim.g['conjure#mapping#eval_buf'] = 'eb'
+      vim.g['conjure#client#clojure#nrepl#mapping#interrupt'] = 'ei'
+
+      -- clojure client
+      vim.g['conjure#client#clojure#nrepl#mapping#connect_port_file'] = 'cf'
+      vim.g['conjure#client#clojure#nrepl#mapping#view_source'] = 'cs'
+      vim.g['conjure#client#clojure#nrepl#mapping#session_fresh'] = 'cf'
+      vim.g['conjure#client#clojure#nrepl#mapping#session_close'] = 'cq'
+      vim.g['conjure#client#clojure#nrepl#mapping#session_close_all'] = 'cQ'
+      vim.g['conjure#client#clojure#nrepl#mapping#session_select'] = 'cl'
+      vim.g['conjure#client#clojure#nrepl#mapping#refresh_changed'] = 'cr'
+      vim.g['conjure#client#clojure#nrepl#mapping#refresh_all'] = 'cR'
+      vim.g['conjure#client#clojure#nrepl#mapping#refresh_clear'] = 'cp'
+    end,
+    lazy = true,
+  },
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -346,6 +412,9 @@ require('lazy').setup({
       spec = {
         { '<leader>s', group = '[S]earch' },
         { '<leader>t', group = '[T]oggle' },
+        { '<leader>l', group = 'REPL [L]og' },
+        { '<leader>e', group = 'REPL [E]valuate' },
+        { '<leader>R', group = '[R]EPL' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
     },
@@ -429,6 +498,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
       vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
+      vim.keymap.set('n', '<leader>sp', builtin.git_files, { desc = '[S]earch Git [Project]' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
@@ -683,7 +753,9 @@ require('lazy').setup({
         -- But for many setups, the LSP (`ts_ls`) will work just fine
         -- ts_ls = {},
         --
-
+        clojure_lsp = {},
+        tailwindcss = {},
+        graphql = {},
         lua_ls = {
           -- cmd = { ... },
           -- filetypes = { ... },
@@ -716,6 +788,7 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'cljfmt',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -768,6 +841,8 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
+        clojure = { 'cljfmt' },
+        clojurescript = { 'cljfmt' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
@@ -974,9 +1049,9 @@ require('lazy').setup({
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
-  -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
+  require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.lint',
+  require 'kickstart.plugins.autopairs',
   -- require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
